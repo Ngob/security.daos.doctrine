@@ -1,0 +1,27 @@
+{
+    "name": "mouf/security.userdao",
+    "description": "This package contains basic DAO for userservice",
+    "keywords": ["mouf", "userdao", "user management"],
+    "homepage": "https://github.com/Ngob/security.userdao",
+    "type": "mouf-library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benoit Ngo",
+            "email": "b.ngo@thecodingmachine.com",
+            "homepage": "http://mouf-php.com"
+        }
+    ],
+    "require": {
+    	"php": ">=5.4.0",
+        "mouf/security.userservice": "~2.1",
+    	"mouf/database.doctrine-orm-wrapper": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mouf\\Security\\Userdao\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
