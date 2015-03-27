@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-    	"php": ">=5.4.0",
+    	"php": ">=5.5.0",
         "mouf/security.userservice": "~2.1",
     	"mouf/database.doctrine-orm-wrapper": "dev-master"
     },
@@ -22,6 +22,16 @@
             "Mouf\\Security\\Userdao\\": "src/"
         }
     },
+	"extra": {
+		"mouf": {
+			"install": [{
+				"type": "class",
+				"class": "Mouf\\Security\\Userdao\\UserEntityInstaller",
+				"scope": "local",
+				"description": "Install the basic userentity"
+			}]
+		}
+	},
     "minimum-stability": "dev",
     "prefer-stable": true
 }
