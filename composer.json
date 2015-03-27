@@ -25,11 +25,14 @@
 	"extra": {
 		"mouf": {
 			"install": [{
-				"type": "class",
-				"class": "Mouf\\Security\\Userdao\\UserEntityInstaller",
+				"type": "url",
+				"url": "userentityinstaller/",
 				"scope": "local",
 				"description": "Install the basic userentity"
-			}]
+			}],
+			"require-admin": [
+				"src/InstallAdmin.php"
+			]
 		}
 	},
     "minimum-stability": "dev",
