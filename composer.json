@@ -27,7 +27,7 @@
 			"install": [{
 				"type": "url",
 				"url": "userentityinstaller/",
-				"scope": "local",
+				"scope": "global",
 				"description": "Install the basic userentity"
 			}],
 			"require-admin": [
