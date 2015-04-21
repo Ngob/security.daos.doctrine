@@ -25,9 +25,9 @@ abstract class AbstractUserEntity implements UserInterface {
 	protected $password;
 	/**
 	 * @var string
-	 * @Column(type="string")
+	 * @Column(type="string", nullable= true)
 	 */
-	protected $token;
+	protected $token = null;
 	
 	public function getId() {
 		return $this->id;
