@@ -42,7 +42,7 @@ abstract class AbstractUserEntity implements UserInterface {
 	}
 	
 	public function getToken() {
-		return $token;
+		return $this->token;
 	}
 	
 	public function setToken($token) {
