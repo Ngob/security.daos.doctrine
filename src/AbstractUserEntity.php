@@ -15,7 +15,7 @@ abstract class AbstractUserEntity implements UserInterface {
 	protected $id;
 	/**
 	 * @var string
-	 * @Column(type="string")
+	 * @Column(type="string", unique=true)
 	 */
 	protected $login;
 	/**
