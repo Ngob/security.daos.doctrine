@@ -50,10 +50,16 @@ abstract class AbstractUserEntity implements UserInterface {
 	}
 	
 	public function setLogin($login) {
+		if (empty($login)) {
+			throw new \InvalidArgumentException("Must provide a login");
+		}
 		$this->login = $login;
 	}
 	
 	public function setPassword($password) {
+		if (empty($password)) {
+			throw new \InvalidArgumentException("Must provide a password");
+		}
 		$this->password = password_hash($password, PASSWORD_DEFAULT);
 	}
 }
