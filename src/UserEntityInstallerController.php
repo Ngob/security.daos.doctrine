@@ -47,7 +47,7 @@ class UserEntityInstallerController extends Controller  {
     private $_mainNamespaces = null;
     
     private $_fullyQualifiedUserEntityNamespace = null;
-    const __GENERATED_CLASS_NAME__ = "UserEntity";
+    const __GENERATED_CLASS_NAME__ = "User";
     
     
     private function _nocomposerAction($selfedit = "false", $calculedComposerPath = "") {
@@ -136,7 +136,7 @@ class UserEntityInstallerController extends Controller  {
     	$name = "entityManager";
     	if ($this->moufManager->instanceExists($name)){
     		$instance = $this->moufManager->getInstanceDescriptor($name);
-    		$entitiesNamespace[] =  $instance->getProperty("entitiesNamespace")->getValue()."/".self::__GENERATED_CLASS_NAME__;
+    		$entitiesNamespace[] =  $instance->getProperty("entitiesNamespace")->getValue()."\\".self::__GENERATED_CLASS_NAME__;
     	} else{
     		if ($autoloadNamespaces) {
     			if (empty($mainNamespaces)) {
