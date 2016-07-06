@@ -1,9 +1,10 @@
 <h1>Setting up your instance</h1>
 
 <p>Our package can create automatically a <em>myInstance</em> instance for the class <em>myClass</em>.
-So you want to create it?</p>
+Select the correct namespace for the user's class.</p>
+<p>To use this installer you must select a namespace for the userentity</p>
 
-<form action="install" id="namespace-form-install">
+<form action="selectFilename" id="namespace-form-install">
     <input type="hidden" name="selfedit" value="<?php echo $this->selfedit ?>" />
     <?php 
     	$fullnamespaces = $this->_getCalculedFullyQualifiedUserEntityNameSpace();
@@ -29,11 +30,10 @@ So you want to create it?</p>
 </form>
 <form style="float:left;display:block" action="skip">
     <input type="hidden" name="selfedit" value="<?php echo $this->selfedit ?>" />
-    <button>Do Not create the user entity</button>
+    <button>Skip this installer</button>
 </form>
 <script>
     document.getElementById("namespace-form-install").addEventListener("submit", function(e) {
-        console.log("foo");
         "use strict";
         e = e || window.event;
         e.preventDefault();

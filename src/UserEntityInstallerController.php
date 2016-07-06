@@ -40,6 +40,9 @@ class UserEntityInstallerController extends Controller  {
      */
     public $contentBlock;
 
+    // Used to display error message on views
+    public $message = "";
+    
     private $_mainClassNameMapper = null;
 
     private $_composerPath = "";
@@ -47,8 +50,16 @@ class UserEntityInstallerController extends Controller  {
     private $_mainNamespaces = null;
     
     private $_fullyQualifiedUserEntityNamespace = null;
-    const __GENERATED_CLASS_NAME__ = "UserEntity";
     
+    const __ENTITYMANAGER_NAME__ = "entityManager";
+    
+    const __GENERATED_CLASS_NAME__ = "UserEntity";
+
+    const __ABSTRACT_CLASS_NAME__ = "AbstractUserEntity";
+    
+    const __USERINTERFACE_FULLNAME__ = "Mouf\\Security\\UserService\\UserDaoInterface";
+    
+    const __USERDAO_CLASS_NAME__ = "UserDao";
     
     private function _nocomposerAction($selfedit = "false", $calculedComposerPath = "") {
     	if ($selfedit == "true") {
@@ -133,10 +144,10 @@ class UserEntityInstallerController extends Controller  {
     	$psrMode = $autoloadNamespaces['psr'];
     	
     	$autoloadDetected = true;
-    	$name = "entityManager";
+    	$name = self::__ENTITYMANAGER_NAME__;
     	if ($this->moufManager->instanceExists($name)){
     		$instance = $this->moufManager->getInstanceDescriptor($name);
-    		$entitiesNamespace[] =  $instance->getProperty("entitiesNamespace")->getValue()."/".self::__GENERATED_CLASS_NAME__;
+    		$entitiesNamespace[] =  $instance->getProperty("entitiesNamespace")->getValue()."\\".self::__GENERATED_CLASS_NAME__;
     	} else{
     		if ($autoloadNamespaces) {
     			if (empty($mainNamespaces)) {
@@ -148,7 +159,7 @@ class UserEntityInstallerController extends Controller  {
     				}
     			}
     			foreach ($mainNamespaces as $mn)
-    				$entitiesNamespace[] = $mn."Model\\Entities".self::__GENERATED_CLASS_NAME__;
+    				$entitiesNamespace[] = $mn."Model\\Entities\\".self::__GENERATED_CLASS_NAME__;
     		} else {
     			// TODO Throw exception
     			throw new UserDaoException("No Autoload Detected");
@@ -189,6 +200,7 @@ class UserEntityInstallerController extends Controller  {
         	$this->nocomposerAction($selfedit, $calculedComposerPath);
         	return;
         }
+        // TODO : Allow the user to choose the namespace if there is an exception while getting namespaces
        	$mainNamespaces = $this->_getNamespacesFromComposerFile($calculedComposerPath);
        	if (!$this->_buildFullyQualifiedUserEntityNameSpace($mainNamespaces)) {
        		throw new UserDaoException("Something wrong happened, cannot determine the cause");
@@ -211,49 +223,170 @@ class UserEntityInstallerController extends Controller  {
     }
 
     /**
-     * The user clicked "yes". Let's create the instance.
-     * 
+     * Get all posible filename for a namespace (with the class name at the end)
+     */
+    protected function getNamespaceFileName($namespace, $isAbsolutePath = true) {
+    	$namespace = preg_replace('/\s+/', '', $namespace);
+    	$possibleFileNames = $this->_getClassNameMapper()->getPossibleFileNames($namespace);
+    	
+    	if (empty($possibleFileNames)) {
+    		return [];
+    	}
+    	$fileNameList = [];
+    	foreach ($possibleFileNames as $possibleFileName) {
+    		$filepath = $possibleFileName;
+    		if ($isAbsolutePath) {
+    			$filepath =  realpath($this->_getProjectPath())."/".$filepath;
+    		}
+    		$fileNameList[] = ["path" => $filepath, "exist" => file_exists($this->_getProjectPath()."/".$possibleFileName)];
+    	}
+    	return $fileNameList;
+    }
+    
+    
+    
+    /**
+     * Action to allow user to select his filename/path for a namespace
+     *
      * @Action
      * @Logged
      * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
-     * @param string $choosen_namespace
+     * @param string $namespace
      */
-    public function install($selfedit = "false", $choosen_namespace = null) {
-        if ($selfedit == "true") {
-            $this->moufManager = MoufManager::getMoufManager();
-        } else {
-            $this->moufManager = MoufManager::getMoufManagerHiddenInstance();
-        }
-        
-        // Maybeadd support of different composer.json path? ?? 
-        $possibleFileNames = $this->_getClassNameMapper()->getPossibleFileNames(html_entity_decode($choosen_namespace));
-        if (empty($possibleFileNames)) {
-        	throw new UserDaoException("No possible file name");
-        }
-        $filename = "";
-        //$filename = $possibleFileNames;
-        //error_log(var_export($possibleFileNames, true));
-        foreach ($possibleFileNames as $possibleFileName) {
-        	error_log($this->_getProjectPath()."/".$possibleFileName);
-        	if (!file_exists($this->_getProjectPath()."/".$possibleFileName)) {
-        		$filename = $this->_getProjectPath()."/".$possibleFileName;
-        		break;
-        	}
-        }
-        error_log("--------");
-        error_log(html_entity_decode($choosen_namespace));
-        error_log("filename ".$filename);
-        if (empty($filename)) {
-        	InstallUtils::continueInstall($selfedit == "true");
-        	return;
-        }
-        
-        if (!copy(__DIR__."/UserEntity.php.tpl", $filename)) {
-        	throw new UserDaoException("Error while copying ".__DIR__."/UserEntity.php.tpl into ".$filename);
-        }
-        if (!chmod($filename, 0664))
-        	throw new UserDaoException("Cannot Chmod ".$filename);
-        InstallUtils::continueInstall($selfedit == 'true');
-		return;
+    public function selectFilename($choosen_namespace, $selfedit = "false") {
+    	// Check format of namespace choosen?
+        $this->selfedit = $selfedit;
+    	if ($selfedit == "true") {
+    		$this->moufManager = MoufManager::getMoufManager();
+    	} else {
+    		$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+    	}
+    	$fileNameList = [];
+    	$namespace = html_entity_decode($choosen_namespace);
+    	try {
+    		$fileNameList = $this->getNamespaceFileName($namespace, true);
+    	}
+    	catch (UserDaoException $e) {
+    		// IF there is an error, let the user select his filename
+    		$fileNameList = [];
+    	}
+    	
+        $this->fileList = $fileNameList;
+        $this->namespace = $namespace;
+    	
+    	$this->contentBlock->addFile(dirname(__FILE__)."/select_filename.php", 
+    			$this);
+    	$this->template->toHtml();
     }
+    
+    /**
+     * check if the file exist filename for a namespace / Create the file if possible => missnamed function
+     *
+     * @Action
+     * @Logged
+     * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
+     * @param string $namespace
+     */
+    public function checkFile($choosen_namespace, $choosen_filename, $selfedit = "false") {
+    	$this->selfedit = $selfedit;
+    	if ($selfedit == "true") {
+    		$this->moufManager = MoufManager::getMoufManager();
+    	} else {
+    		$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+    	}
+    	$namespace = html_entity_decode($choosen_namespace);
+		$namespace = preg_replace('/\s+/', '', $namespace);
+    	$filename = html_entity_decode($choosen_filename);
+    	$filename = preg_replace('/\s+/', '', $filename);
+    	
+    	if (file_exists($filename)) {
+    		$this->message = "The file [".htmlentities($choosen_filename)."] already exists, please select another path";
+    		return $this->selectFilename($choosen_namespace, $selfedit);
+    	}
+    	
+    	$this->filename = $filename;
+    	$this->namespace = $namespace;
+    	$classname = substr(strrchr($namespace, "\\"), 1);
+    	$fullnamespace = substr($namespace, 0, strrpos($namespace, "\\", -1));
+    	$fileObject = new \SplFileObject($filename, "w+");
+    	$fileObject->fwrite("<?php ".PHP_EOL);
+    	$fileObject->fwrite("namespace ".$fullnamespace.";".PHP_EOL);
+    	$fileObject->fwrite("use ".__NAMESPACE__."\\".self::__ABSTRACT_CLASS_NAME__.";".PHP_EOL);
+    	$fileObject->fwrite(file_get_contents(__DIR__."/User.php.tpl"));
+    	$fileObject->fwrite("class ".$classname." extends ".self::__ABSTRACT_CLASS_NAME__." {".PHP_EOL);
+    	$fileObject->fwrite("}".PHP_EOL);
+    	/**if (!copy(__DIR__."/UserEntity.php.tpl", $filename)) {
+    		throw new UserDaoException("Error while copying ".__DIR__."/UserEntity.php.tpl into ".$filename);
+    	}**/
+    	if (!chmod($filename, 0664))
+    		throw new UserDaoException("Cannot Chmod ".$filename);
+    	$this->createMyInstanceView($choosen_namespace, $selfedit);
+    }
+    /**
+     * 
+     *
+     * @Action
+     * @Logged
+     * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
+     * @param string $namespace
+     */
+    public function createMyInstanceView($choosen_namespace, $selfedit = "false") {
+    	$this->selfedit = $selfedit;
+    	if ($selfedit == "true") {
+    		$this->moufManager = MoufManager::getMoufManager();
+    	} else {
+    		$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+    	}
+    	$namespace = html_entity_decode($choosen_namespace);
+		$namespace = preg_replace('/\s+/', '', $namespace);
+    	$this->namespace = $namespace;
+    	$this->instanceName = self::__USERINTERFACE_FULLNAME__;
+    	$this->entityManagerName = self::__ENTITYMANAGER_NAME__;
+    	
+    	$this->contentBlock->addFile(dirname(__FILE__)."/select_instancename.php",
+    			$this);
+    	$this->template->toHtml();
+    }
+
+    /**
+     * check if the file exist filename for a namespace / Create the file if possible => missnamed function
+     *
+     * @Action
+     * @Logged
+     * @param string $selfedit If true, the name of the component must be a component from the Mouf framework itself (internal use only)
+     * @param string $namespace
+     */
+    public function createMyInstance($choosen_namespace, $selfedit = "false") {
+    	$this->selfedit = $selfedit;
+    	if ($selfedit == "true") {
+    		$this->moufManager = MoufManager::getMoufManager();
+    	} else {
+    		$this->moufManager = MoufManager::getMoufManagerHiddenInstance();
+    	}
+    	$moufManager = $this->moufManager;
+    	$namespace = html_entity_decode($choosen_namespace);
+		$namespace = preg_replace('/\s+/', '', $namespace);
+		if (!$moufManager->instanceExists(self::__ENTITYMANAGER_NAME__)) {
+			$this->message = "No entity manager instance found, supposed name is ".self::__ENTITYMANAGER_NAME__;
+			return $this->createMyInstanceView($namespace, $selfedit);
+		}
+    	if (!$moufManager->instanceExists(self::__USERINTERFACE_FULLNAME__)) {
+    		$userDao = $moufManager->createInstance(__NAMESPACE__."\\".self::__USERDAO_CLASS_NAME__);
+    		$userDao->setName(self::__USERINTERFACE_FULLNAME__);
+    		$userDao->getProperty("entityManager")->setValue($moufManager->getInstanceDescriptor(self::__ENTITYMANAGER_NAME__));
+    		
+    		// LEt create the repository instance
+    		$userDao->getProperty("fullenameClassEntity")->setValue($namespace);
+    	
+	    	// Let's rewrite the MoufComponents.php file to save the component
+	    	$moufManager->rewriteMouf();
+	    	$this->skip();
+    	}
+    	else {
+    		$this->message = "Instance's name ".self::__USERINTERFACE_FULLNAME__." already in use, you might skip this installer";
+    		return $this->createMyInstanceView($namespace, $selfedit);
+    		// TODO Error message
+    	}
+    }
+    
 }

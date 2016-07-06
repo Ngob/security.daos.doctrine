@@ -3,7 +3,7 @@ namespace Mouf\Security\Userdao;
 use Mouf\Security\UserService\UserDaoInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-class UserDao implements UserDaoInterface {
+class UserDao extends EntityRepository implements UserDaoInterface {
 	/**
 	 * 
 	 * @var EntityManager
@@ -15,9 +15,9 @@ class UserDao implements UserDaoInterface {
 	 */
 	protected $userRepository = null;
 	
-	public function __construct(EntityManager $entityManager) {
+	public function __construct(EntityManager $entityManager, string $fullenameClassEntity) {
 		$this->entityManager = $entityManager;
-		$this->userRepository = $entityManager->getRepository("Coders\\Model\\Entities\\UserEntity");
+		parent::__construct($entityManager, $entityManager->getClassMetadata($fullenameClassEntity));
 	}
 	
 	/**
@@ -29,7 +29,7 @@ class UserDao implements UserDaoInterface {
 	 */
 	public function getUserByCredentials($login, $password) {
 		//$this->entityManager->find();
-		$user = $this->userRepository->findByLogin(
+		$user = $this->findByLogin(
 					$login
 				);
 		if ($user === null || count($user) < 1) {
@@ -50,7 +50,7 @@ class UserDao implements UserDaoInterface {
 	 * @return UserInterface
 	*/
 	public function getUserByToken($token) {
-		$user = $this->userRepository->findByToken(
+		$user = $this->findByToken(
 				$token
 		);
 		if ($user === null || count($user) < 1)
@@ -66,7 +66,7 @@ class UserDao implements UserDaoInterface {
 	 * @param string $token
 	*/
 	public function discardToken($token){
-		$user = $this->userRepository->findByToken(
+		$user = $this->findByToken(
 				$token
 		);
 
@@ -85,7 +85,7 @@ class UserDao implements UserDaoInterface {
 	 * @return UserInterface
 	*/
 	public function getUserById($id) {
-		$user = $this->userRepository->find(
+		$user = $this->find(
 				$id
 		);
 		
@@ -99,7 +99,7 @@ class UserDao implements UserDaoInterface {
 	 * @return UserInterface
 	*/
 	public function getUserByLogin($login) {
-		$user = $this->userRepository->findByLogin(
+		$user = $this->findByLogin(
 				$login
 		);
 		
