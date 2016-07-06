@@ -1,8 +1,8 @@
 {
-    "name": "mouf/security.userdao",
-    "description": "This package contains basic DAO for userservice",
+    "name": "mouf/security.daos.doctrine",
+    "description": "This package contains a basic DAO implementation for userservice",
     "keywords": ["mouf", "userdao", "user management"],
-    "homepage": "https://github.com/Ngob/security.userdao",
+    "homepage": "https://github.com/Ngob/security.daos.doctrine",
     "type": "mouf-library",
     "license": "MIT",
     "authors": [
@@ -14,12 +14,12 @@
     ],
     "require": {
     	"php": ">=5.5.0",
-        "mouf/security.userservice": "~2.1",
+      "mouf/security.userservice": "~2.1",
     	"mouf/database.doctrine-orm-wrapper": "~2.0"
     },
     "autoload": {
         "psr-4": {
-            "Mouf\\Security\\Userdao\\": "src/"
+            "Security\\Daos\\Doctrine\\": "src/"
         }
     },
 	"extra": {
