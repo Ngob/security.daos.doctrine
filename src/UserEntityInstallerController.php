@@ -53,7 +53,7 @@ class UserEntityInstallerController extends Controller  {
     
     const __ENTITYMANAGER_NAME__ = "entityManager";
     
-    const __GENERATED_CLASS_NAME__ = "UserEntity";
+    const __GENERATED_CLASS_NAME__ = "User";
 
     const __ABSTRACT_CLASS_NAME__ = "AbstractUserEntity";
     
