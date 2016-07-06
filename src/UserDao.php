@@ -1,5 +1,6 @@
 <?php
-namespace Mouf\Security\Userdao;
+namespace Security\Daos\Doctrine;
+
 use Mouf\Security\UserService\UserDaoInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;

@@ -1,5 +1,6 @@
 <?php
-namespace Mouf\Security\Userdao;
+namespace Security\Daos\Doctrine;
+
 class UserDaoException extends \Exception {
 	
 }

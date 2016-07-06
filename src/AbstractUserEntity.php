@@ -1,5 +1,5 @@
 <?php
-namespace Mouf\Security\Userdao;
+namespace Security\Daos\Doctrine;
 
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Column;

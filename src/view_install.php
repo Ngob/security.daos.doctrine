@@ -1,4 +1,4 @@
-<?php /* @var $this \Mouf\Security\Userdao\UserEntityInstallerController */ ?>
+<?php /* @var $this \Security\Daos\Doctrine\UserEntityInstallerController */ ?>
 <h1>Setting up your instance</h1>
 
 <p>The security.doctrine.userdao package can create automatically a class for your User entity. It also create an instance of userdao

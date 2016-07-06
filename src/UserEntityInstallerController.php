@@ -1,5 +1,5 @@
 <?php
-namespace Mouf\Security\Userdao;
+namespace Security\Daos\Doctrine;
 
 use Mouf\Actions\InstallUtils;
 use Mouf\MoufManager;
