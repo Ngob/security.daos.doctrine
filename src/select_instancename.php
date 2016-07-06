@@ -2,8 +2,8 @@
 <h1>Summary</h1>
 <p>The User Dao Instance name : <?php echo $this->instanceName?></p>
 
-<p>The choosen namespace is <?php echo htmlentities($this->namespace) ?></p>
-<p>The repository of the user entity is the namespace above</p>
+<p>The choosen user's full class name is <?php echo htmlentities($this->namespace) ?></p>
+<p>The repository of the user entity is the class name above</p>
 <p>The name of the entityManager's instance : <?php echo $this->entityManagerName;?></p>
 <form action="createMyInstance">
 

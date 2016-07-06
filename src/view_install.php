@@ -2,8 +2,8 @@
 <h1>Setting up your instance</h1>
 
 <p>The security.doctrine.userdao package can create automatically a class for your User entity. It also create an instance of userdao
-Select the correct namespace for the user's class.</p>
-<p>To use this installer you must select a namespace for the userentity</p>
+Select the correct full class name (with the namespace) for the user's class.</p>
+<p>To use this installer you must select a full class name (with the namespace) for the user's class</p>
 
 <form action="selectFilename" id="namespace-form-install">
     <input type="hidden" name="selfedit" value="<?php echo $this->selfedit ?>" />
@@ -51,7 +51,7 @@ Select the correct namespace for the user's class.</p>
         if (!textOtherNs || typeof(textOtherNs) === "undefined")
             throw "no input text found";
         if (!textOtherNs || textOtherNs.value.trim().length === 0) {
-            alert("Please You must fill a name space");
+            alert("Please You must fill a classname");
             return false;
         }
         radioOthers.value = textOtherNs.value;
