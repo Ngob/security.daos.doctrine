@@ -1,5 +1,5 @@
 {
-    "name": "mouf/security.daos.doctrine",
+    "name": "thecodingmachine/security.daos.doctrine",
     "description": "This package contains a basic DAO implementation for userservice",
     "keywords": ["mouf", "userdao", "user management"],
     "homepage": "https://github.com/Ngob/security.daos.doctrine",
@@ -22,19 +22,6 @@
             "Security\\Daos\\Doctrine\\": "src/"
         }
     },
-	"extra": {
-		"mouf": {
-			"install": [{
-				"type": "url",
-				"url": "userentityinstaller/",
-				"scope": "global",
-				"description": "Install the basic userentity"
-			}],
-			"require-admin": [
-				"src/InstallAdmin.php"
-			]
-		}
-	},
     "minimum-stability": "dev",
     "prefer-stable": true
 }
