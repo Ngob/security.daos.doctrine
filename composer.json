@@ -1,15 +1,15 @@
 {
-    "name": "thecodingmachine/security.daos.doctrine",
+    "name": "phps-cans/security.daos.doctrine",
     "description": "This package contains a basic DAO implementation for userservice",
-    "keywords": ["mouf", "userdao", "user management"],
-    "homepage": "https://github.com/Ngob/security.daos.doctrine",
-    "type": "mouf-library",
+    "keywords": ["userdao", "user management"],
+    "homepage": "https://github.com/thecodingmachine/security.daos.doctrine",
+    "type": "user-lib",
     "license": "MIT",
     "authors": [
         {
             "name": "Benoit Ngo",
             "email": "b.ngo@thecodingmachine.com",
-            "homepage": "http://mouf-php.com"
+            "homepage": "http://github.com/Ngob"
         }
     ],
     "require": {
