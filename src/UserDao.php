@@ -1,10 +1,14 @@
 <?php
 namespace Security\Daos\Doctrine;
 
+use Mouf\Security\Password\Api\ForgotYourPasswordDao as ForgotYourPasswordInterface;
+use Mouf\Security\Password\Exception\EmailNotFoundException;
 use Mouf\Security\UserService\UserDaoInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-class UserDao extends EntityRepository implements UserDaoInterface {
+use Mouf\Security\UserService\UserInterface;
+
+class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPasswordInterface {
 	/**
 	 * 
 	 * @var EntityManager
@@ -16,17 +20,17 @@ class UserDao extends EntityRepository implements UserDaoInterface {
 	 */
 	protected $userRepository = null;
 	
-	public function __construct(EntityManager $entityManager, string $fullenameClassEntity) {
+	public function __construct(EntityManager $entityManager, $fullenameClassEntity) {
 		$this->entityManager = $entityManager;
 		parent::__construct($entityManager, $entityManager->getClassMetadata($fullenameClassEntity));
 	}
-	
+
 	/**
 	 * Returns a user from its login and its password, or null if the login or credentials are false.
-	 *
 	 * @param string $login
 	 * @param string $password
-	 * @return UserInterface
+	 * @return null
+	 * @throws UserDaoException
 	 */
 	public function getUserByCredentials($login, $password) {
 		//$this->entityManager->find();
@@ -43,29 +47,31 @@ class UserDao extends EntityRepository implements UserDaoInterface {
 			return $user[0];
 		return null;
 	}
-	
+
 	/**
 	 * Returns a user from its token.
-	 *
 	 * @param string $token
-	 * @return UserInterface
-	*/
+	 * @return null
+	 * @throws UserDaoException
+	 */
 	public function getUserByToken($token) {
-		$user = $this->findByToken(
-				$token
-		);
+		$user = $this->findBy([
+				'token' => $token
+		]);
+
 		if ($user === null || count($user) < 1)
 			return null;
 		else if (count($user) > 1)
 			throw new UserDaoException("More than one user with this token [".$token."] has been found");
 		return $user[0];
 	}
-	
+
 	/**
 	 * Discards a token.
-	 *
 	 * @param string $token
-	*/
+	 * @return null
+	 * @throws UserDaoException
+	 */
 	public function discardToken($token){
 		$user = $this->findByToken(
 				$token
@@ -92,13 +98,13 @@ class UserDao extends EntityRepository implements UserDaoInterface {
 		
 		return $user;
 	}
-	
+
 	/**
 	 * Returns a user from its login
-	 *
 	 * @param string $login
-	 * @return UserInterface
-	*/
+	 * @return null
+	 * @throws UserDaoException
+	 */
 	public function getUserByLogin($login) {
 		$user = $this->findByLogin(
 				$login
@@ -110,5 +116,46 @@ class UserDao extends EntityRepository implements UserDaoInterface {
 			throw new UserDaoException("More than one user with this login [".$login."] has been found");
 		return $user[0];
 	}
-	
+
+	/**
+	 * Sets $token for user whose mail is $email, stores the token in database.
+	 * Throws an EmailNotFoundException if the email is not part of the database.
+	 *
+	 * @param string $email
+	 *
+	 * @throws \Mouf\Security\Password\Api\EmailNotFoundException
+	 */
+	public function setToken(string $email, string $token)
+	{
+		$user = $this->findOneBy([
+			'email' => $email
+		]);
+
+
+		if ($user === null) {
+			throw EmailNotFoundException::notFound($email);
+		}
+		$user->setToken($token);
+		$this->entityManager->persist($user);
+		$this->entityManager->flush();
+	}
+
+	/**
+	 * Sets the password matching to $token and discards $token.
+	 * Throws an TokenNotFoundException if the token is not part of the database.
+	 *
+	 * @param string $token
+	 * @param string $password
+	 *
+	 * @throws \Mouf\Security\Password\Api\TokenNotFoundException
+	 */
+	public function setPasswordAndDiscardToken(string $token, string $password)
+	{
+		$user = $this->getUserByToken($token);
+
+		$user->setPassword($password);
+		$user->setToken(null);
+		$this->entityManager->persist($user);
+		$this->entityManager->flush();
+	}
 }

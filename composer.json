@@ -13,9 +13,10 @@
         }
     ],
     "require": {
-    	"php": ">=5.5.0",
-      "mouf/security.userservice": "~2.1",
-    	"mouf/database.doctrine-orm-wrapper": "~2.0"
+    	"php": ">=7",
+        "mouf/security.userservice": "~2.1",
+        "mouf/database.doctrine-orm-wrapper": "~2.0",
+        "mouf/security.forgot-your-password-interface": "~1.0"
     },
     "autoload": {
         "psr-4": {
