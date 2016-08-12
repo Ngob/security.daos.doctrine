@@ -55,15 +55,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function getUserByToken($token) {
-		$user = $this->findBy([
-				'token' => $token
-		]);
-
-		if ($user === null || count($user) < 1)
-			return null;
-		else if (count($user) > 1)
-			throw new UserDaoException("More than one user with this token [".$token."] has been found");
-		return $user[0];
+		return $this->findOneBy(['token' => $token]);
 	}
 
 	/**
@@ -73,15 +65,11 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function discardToken($token){
-		$user = $this->findByToken(
-				$token
-		);
+		$user =  $this->findOneBy(['token' => $token]);
 
-		if ($user === null || count($user) < 1)
+		if ($user === null)
 			return null;
-		else if (count($user) > 1)
-			throw new UserDaoException("More than one user with this token [".$token."] has been found");
-		$user[0]->setToken(null);
+		$user->setToken(null);
 		$this->entityManager->fetch();
 	}
 	
@@ -92,11 +80,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @return UserInterface
 	*/
 	public function getUserById($id) {
-		$user = $this->find(
-				$id
-		);
-		
-		return $user;
+		return $this->find($id);
 	}
 
 	/**
@@ -106,15 +90,9 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function getUserByLogin($login) {
-		$user = $this->findByLogin(
-				$login
-		);
-		
-		if ($user === null || count($user) < 1)
-			return null;
-		else if (count($user) > 1)
-			throw new UserDaoException("More than one user with this login [".$login."] has been found");
-		return $user[0];
+		return $this->findOneBy([
+			'login'=>$login
+		]);
 	}
 
 	/**
@@ -130,7 +108,6 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 		$user = $this->findOneBy([
 			'email' => $email
 		]);
-
 
 		if ($user === null) {
 			throw EmailNotFoundException::notFound($email);
