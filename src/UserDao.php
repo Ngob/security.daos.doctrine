@@ -129,7 +129,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 			throw EmailNotFoundException::notFound($email);
 		}
 		$user->setToken($token);
-		$this->entityManager->flush();
+		$this->entityManager->flush($user);
 	}
 
 	/**
@@ -148,6 +148,6 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 
 		$user->setPassword($password);
 		$user->setToken(null);
-		$this->entityManager->flush();
+		$this->entityManager->flush($user);
 	}
 }
