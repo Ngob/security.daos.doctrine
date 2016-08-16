@@ -29,7 +29,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * Returns a user from its login and its password, or null if the login or credentials are false.
 	 * @param string $login
 	 * @param string $password
-	 * @return null
+	 * @return UserInterface
 	 * @throws UserDaoException
 	 */
 	public function getUserByCredentials($login, $password) {
@@ -51,7 +51,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	/**
 	 * Returns a user from its token.
 	 * @param string $token
-	 * @return null
+	 * @return UserInterface
 	 * @throws UserDaoException
 	 */
 	public function getUserByToken($token) {
@@ -69,7 +69,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	/**
 	 * Discards a token.
 	 * @param string $token
-	 * @return null
+	 * @return UserInterface
 	 * @throws UserDaoException
 	 */
 	public function discardToken($token){
@@ -96,7 +96,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	/**
 	 * Returns a user from its login
 	 * @param string $login
-	 * @return null
+	 * @return UserInterface
 	 * @throws UserDaoException
 	 */
 	public function getUserByLogin($login) {
@@ -113,6 +113,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	/**
 	 * Sets $token for user whose mail is $email, stores the token in database.
 	 * Throws an EmailNotFoundException if the email is not part of the database.
+	 * Save token&password set to the $user
 	 *
 	 * @param string $email
 	 *
@@ -128,13 +129,13 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 			throw EmailNotFoundException::notFound($email);
 		}
 		$user->setToken($token);
-		$this->entityManager->persist($user);
 		$this->entityManager->flush();
 	}
 
 	/**
 	 * Sets the password matching to $token and discards $token.
 	 * Throws an TokenNotFoundException if the token is not part of the database.
+	 * Save changes by flush the $user
 	 *
 	 * @param string $token
 	 * @param string $password
@@ -147,7 +148,6 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 
 		$user->setPassword($password);
 		$user->setToken(null);
-		$this->entityManager->persist($user);
 		$this->entityManager->flush();
 	}
 }
