@@ -20,7 +20,7 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 */
 	protected $userRepository = null;
 	
-	public function __construct(EntityManager $entityManager, $fullenameClassEntity) {
+	public function __construct(EntityManager $entityManager,string $fullenameClassEntity) {
 		$this->entityManager = $entityManager;
 		parent::__construct($entityManager, $entityManager->getClassMetadata($fullenameClassEntity));
 	}
@@ -55,7 +55,15 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function getUserByToken($token) {
-		return $this->findOneBy(['token' => $token]);
+		$user = $this->findByToken(
+			$token
+		);
+		if ($user === null || count($user) < 1)
+			return null;
+		else if (count($user) > 1)
+			throw new UserDaoException("More than one user with this token [".$token."] has been found");
+		return $user[0];
+	/*	return $this->findOneBy(['token' => $token]);*/
 	}
 
 	/**
@@ -65,11 +73,13 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function discardToken($token){
-		$user =  $this->findOneBy(['token' => $token]);
+		$user =  $this->findByToken($token);
 
-		if ($user === null)
+		if ($user === null || count($user) < 1)
 			return null;
-		$user->setToken(null);
+		else if (count($user) > 1)
+			throw new UserDaoException("More than one user with this token [".$token."] has been found");
+ 		$user[0]->setToken(null);
 		$this->entityManager->fetch();
 	}
 	
@@ -90,9 +100,14 @@ class UserDao extends EntityRepository implements UserDaoInterface, ForgotYourPa
 	 * @throws UserDaoException
 	 */
 	public function getUserByLogin($login) {
-		return $this->findOneBy([
-			'login'=>$login
-		]);
+		$user = $this->findByLogin(
+			$login
+		);
+		if ($user === null || count($user) < 1)
+			return null;
+		else if (count($user) > 1)
+			throw new UserDaoException("More than one user with this login [".$login."] has been found");
+		return $user[0];
 	}
 
 	/**
